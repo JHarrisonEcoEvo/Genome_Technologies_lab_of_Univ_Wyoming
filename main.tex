@@ -1,0 +1,336 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+
+\usepackage{caption} % <================================================
+\usepackage{booktabs} % <================================= better tables
+
+\usepackage{siunitx}
+\DeclareSIUnit\Molar{\textsc{m}} %define molar
+\usepackage[ampersand]{easylist}
+\usepackage[
+    backend=biber,
+    style=authoryear-comp,
+    citestyle=authoryear-comp,
+    uniquename=false,
+    url=false,
+    giveninits=true, %convert first and middle names to initials
+    doi=false,
+    eprint=false,
+    isbn=false,
+    maxcitenames=2,
+    uniquelist=false, 
+    date=year, %suppress month and day
+    labeldate=year,%suppress month and day
+    alldates=year]{biblatex}
+
+\renewbibmacro{in:}{}
+\AtEveryBibitem{%
+    \clearlist{language}%
+    %\clearlist{publisher}%
+    \clearfield{note}% Lots of crap in the notes field from Zotero
+} 
+\addbibresource{Zotero.bib}
+
+\title{Appendix 1: 16s \& ITS Illumina Library Preparation SOP}
+\author{Genome Technologies Laboratory\\University of Wyoming\\
+Laboratory Manager: Gregory D. Randolph}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This standard operating procedure (SOP) was developed by Gregory Randolph, C. Alex Buerkle, and Joshua Harrison and was inspired by the approach developed by the Genome Sequencing and Analysis Facility at the University of Texas (\url{https://wikis.utexas.edu/display/GSAF/Home+Page}).
+
+This SOP is for amplification of the 16s (515--806 primer pair) and ITS (ITS1f--ITS2 primer pair) loci from environmental samples. Libraries are designed to be sequenced on Illumina platforms, including the iSeq, MiSeq, HiSeq, and NovaSeq. This SOP will not work for other platforms because the final step adds the Illumina-specific flowcell adaptors.
+
+The SOP makes use of 96 unique ``coligos'' for tracking cross-contamination among wells. We also use a synthetic DNA internal standard (ISD) inspired by \autocite{tourlousse_synthetic_2017}. We suggest that future iterations of this SOP be amended to include an internal standard comprising several unique sequences \autocite[see][]{harrison_quest_2020}.
+
+Users should be aware that coligo reads will have poly-G tails that arise from a lack of signal from the sequencing machine. These tails are readily trimmed off during bioinformatics. For instance, they can be automatically removed during merging of paired reads.
+
+See \url{https://github.com/JHarrisonEcoEvo/Genome_Technologies_lab_of_Univ_Wyoming} for updated versions of this SOP. We anticipate optimization of this protocol over 2020 and 2021.
+
+\section{Materials}
+\begin{easylist}[itemize]
+
+& Coligos for sample tracking. Coligo structure: 5'- forward primer - 13 nt coliqo sequence - rear primer - 3'. 96 coligos should be obtained, each with a unique sequence. See \url{https://github.com/JHarrisonEcoEvo/Genome_Technologies_lab_of_Univ_Wyoming} for suggested coligo sequences.
+&& E.g., 16S Coligo: 5'-GTGCCAGCAGCCGCGGTAA AACAACAACAACC ATTAGATACCCTAGTAGTCC-3'
+&& E.g., ITS Coligo: 5' - CTTGGTCATTTAGAGGAAGTAAT AACAACAACAACC CGTAGCTACTTCTTGCGTCG-3'
+
+& Synthetically designed DNA as an internal standard (ISD) or ``spike-in'' \autocite[after][]{tourlousse_synthetic_2017}. Structure: 5'- forward primer - synthetic sequence - rear primer - 3'
+&& E.g., ITS ISD: CTTGGTCATTTAGAGGAAGTAATGCCACAGATACGTACCGCTCATAACGCGAACCGAAG
+CGCAGTAGAAGTACTCCGTATCCTACCTCGGTCGTGGTTTAGGCTATCGACATCTTGCATGGGCTTCCCTAGTGAAC
+TCTTGGGATGTGCATCGATGAAGAACGCAGC
+
+&& E.g., 16S ISD: GTGCCAGCAGCCGCGGTAAGCCACAGATACGTACCGCTCATAACGCGAACCGAAGCGCA
+GTAGAAGTACTCCGTATCCTACCTCGGTCGTGGTTTAGGCTATCGACATCTTGCATGGGCTTCCCTAGTGAACTCTT
+GGGATGTATTAGATACCCTAGTAGTCC
+
+& 5X KAPA HiFi HotStart PCR Buffer
+
+& 10M dNTPs
+
+& Kapa HiFi HotStart DNA Polymerase
+
+& HPLC grade $\mathrm{H_2 O}$ %hack to get subscript to work right
+
+& Axygen AxyPrep Mag PCR Clean-up Kit
+
+& Template DNA. At least \SI{30}{\micro\liter} required. Preferably of \SI{10}{\nano\gram} or higher concentration.
+
+& Barcoded locus-specific primers. These primers are described in the Supplemental Material and should be arrayed in 96-well plates, for most applications. Primer design is as follows: 
+5'- part of Illumina flowcell adaptor - variable length barcode (referred to as SEQbarcode below) - primer (either forward or reverse) - 3'. 
+
+&& 16S Primer Base
+
+    &&& 515F (5’-GTGYCAGCMGCCGC GGTAA-3’) \autocite{parada_every_2016}
+
+    &&& 806R (5’-GGACTACNVGGGTWTCTAAT-3’) \autocite{apprill_minor_2015}
+
+&& ITS Primer Base
+
+    &&& ITS1F (5'-CTTGGTCATTTAGAGGAAGTAA-3') \autocite[]{gardes_its_1993}
+
+    &&& ITS2 (3'-CGTAGCTACTTCTTGCGTCG-5') \autocite[]{white_amplification_1990}
+
+&& Primer structure
+
+    &&& 5'-PARTIAL\_ILLUMINA\_FLOWCELL\_SEQbarcode\\
+    GTGYCAGCMGCCGCGGTAA-3'
+
+    &&& 5'-PARTIAL\_ILLUMINA\_FLOWCELL\_SEQbarcode\\
+    GGACTACHVGGGTWTCTAAT-3'
+
+    &&& 5'-PARTIAL\_ILLUMINA\_FLOWCELL\_SEQbarcode\\
+    CTTGGTCATTTAGAGGAAGTAA-3'
+
+    &&& 5'-PARTIAL\_ILLUMINA\_FLOWCELL\_SEQbarcode\\
+    GCTGCGTTCTTCATCGATGC-3'
+    
+& Flowcell primers. These primers extend the barcoded primers during a second round of PCR so that the full Illumina flowcell adaptor is added to each amplicon. We use this two step protocol to reduce oligo costs, however barcoded primers could be extended to include the full flowcell adaptors if desired, thus obviating the need for a second round of PCR.
+
+&&  Flowcell primer sequences:
+&&& AATGATACGGCGACCACCGAGATCTACACTCGTCGGCAGCGTC
+&&& CAAGCAGAAGACGGCATACGAGATGTCTCGTGGGCTCGG
+
+\end{easylist}
+
+\section{Protocol}
+\begin{easylist}[tractatus]
+&  Aliquot \SI{30}{\micro\liter} of full concentration extracted DNA into a new 96 well plate (unskirted, standard well depth). Save this plate in the event the library needs prepared again. Label the plate. We currently advise performing PCR in duplicate.
+\\
+& Add \SI{6}{\micro\liter} of control oligo pool to environmental DNA aliquot. The control pool includes 16S and ITS coligos (\SI{0.01}{\pico\gram\per\micro\liter} of each) and \SI{0.03}{\pico\gram\per\micro\liter} each of the 16S and ITS internal standards.
+\\
+& Quantify DNA concentration for each sample (use high-throughput microplate reader). DNA concentrations should be recorded in \SI{}{\nano\gram\per\micro\liter} in a two column spreadsheet with sample in the first column and concentration in the second column. This is the format recognize by the automated normalization program for the Hamilton Nimbus 
+\\
+& Normalize DNA to \SI{10}{\nano\gram\per\micro\liter} (use Hamilton Nimbus program). Save this normalized DNA in case the library needs to be prepared again. Label the plate.
+\\
+& Add \SI{7}{\micro\liter} of Master Mix \#1 to each well of a new plate (see ~\ref{table_mm_1} for Master Mix ingredients). Label the plate.
+\\
+& Add \SI{6}{\micro\liter} of the appropriate \SI{0.25}{\micro M} barcode plate to the plate with the Master Mix.
+\\
+& Add \SI{2}{\micro\liter} of template DNA (normalized) to each well of the plate with the Master Mix.
+\\
+& Apply PCR recipe \#1 (Table~\ref{table_pcr1}) to the plate with the Master Mix.
+\end{easylist}
+
+\vspace{5mm}
+\begin{minipage}[c]{\linewidth}
+\captionof{table}{Ingredients for Master Mix \#1. Include 10--15\% extra of reagents to account for wastage due to adhesion of liquid to plastics.}
+\centering
+\begin{tabular}{ |c|c| }
+\hline
+\SI{}{\micro\liter}/rxn & Reagent\\
+\hline
+ 3 & 5X KAPA HiFi HotStart PCR Buffer\\ 
+ 0.45 & 10M dNTPs \\ 
+ 0.3 & Kapa HiFi HotStart DNA Polymerase\\
+ 3.25 & HPLC grade $\mathrm{H_2 O}$\\
+ 7 & Total volume\\
+ \hline
+\end{tabular}
+\label{table_mm_1}
+\end{minipage}
+
+\vspace{5mm}
+\begin{minipage}[c]{\linewidth}
+\captionof{table}{PCR conditions \#1. These conditions are for amplification of the target locus and addition of barcodes.}
+\centering
+\begin{tabular}{ |c|c|c| }
+\hline
+Temp. & Cycles & Time\\
+\hline
+95\si{\degree} & 1X & 3:00 min \\
+98\si{\degree} & 15X & 30 sec \\
+62\si{\degree} & 15X & 30 sec \\
+72\si{\degree} & 15X & 30 sec \\
+72\si{\degree} & 1X & 5:00 min \\
+4\si{\degree} & 1X & hold \\
+ \hline
+\end{tabular}
+\label{table_pcr1}
+\end{minipage}
+
+\begin{easylist}
+& Pool PCR duplicates together into one of the two plates. 
+\\
+& Purify samples using the following modified manual AxyPrep MagBead PCR Clean-Up protocol.
+\\
+&& Equilibrate beads to room temperature
+\\
+&& Add \SI{24}{\micro\liter} of MagBeads to each well; Mix via pipetting, use 10 aspiration/dispensation cycles.
+\\
+&& Incubate at room temperature for 5 minutes
+\\
+&&Secure plate on magnet plate; incubate at room temperature for 5 minutes (ensure wells are clear)
+\\
+&& Remove \SI{65}{\micro\liter} from each well; keep tips to left or right depending on the column to avoid bead pellet. The pellet will stick to the side of the well due to the action of the magnet. The pellet has the DNA so do not remove it.
+\\
+&& Add \SI{100}{\micro\liter} fresh 80\% ethanol to each well and incubate 30 seconds. Remove \SI{100}{\micro\liter} from each well. 
+\\
+&& Duplicate the last step. I.e., add \SI{100}{\micro\liter} fresh 80\% ethanol to each well, incubate 30 seconds, remove \SI{100}{\micro\liter} from each well.
+\\
+&& Aspirate from each well again to assure maximum ethanol removal. Ethanol can interfere with PCR. Visually check the bottoms of the wells by looking up through the bottom of the plate. Sometimes ethanol can remain in a few wells and it is worth attempting to remove.
+\\
+&& Allow plate to air dry for 7 minutes. This allows remaining ethanol to evaporate. If ethanol has not evaporated then try to pipette it out and dry longer until all ethanol has been removed.
+\\
+&& Remove sample plate from magnet plate.
+\\
+&& Add \SI{30}{\micro\liter} $\mathrm{H_2 O}$; pipette mix 10+ times. Incubate 2 minutes at room temperature.
+\\
+&& Place sample plate back on magnet for 5 minutes or until all wells are cleared.
+\\
+&& Remove liquid from the well and place in a new, labeled plate. This is the cleaned DNA. 
+\\
+&& Prepare FlowCell Master Mix (Table~\ref{table_mm_2}).
+\\
+& Add \SI{5}{\micro\liter} FlowCell Master Mix to a new plate.
+\\
+& Transfer \SI{10}{\micro\liter} cleaned DNA to the new plate that has the FlowCell Master Mix.
+\\
+& Apply PCR recipe \#2 (Table~\ref{table_pcr_flow}) to this plate (with FlowCell Master Mix and cleaned template from PCR \#1).
+\\
+& Clean amplicons using the modified MagBead protocol listed below. Note that this differs slightly from the clean up step listed above in that the final step uses TE instead of water.
+\\
+&& Equilibrate beads to room temperature
+\\
+&& Add \SI{15}{\micro\liter} of $\mathrm{H_2 O}$ to each well.
+\\
+&& Add \SI{24}{\micro\liter} of MagBeads (0.8 x \SI{30}{\micro\liter}) to each well; Mix via pipetting, use 10 aspiration/dispensation cycles.
+\\
+&& Incubate at room temperature for 5 minutes
+\\
+&& Secure plate on magnet plate; incubate at room temperature for 5 minutes (until wells are clear)
+\\
+&& Remove \SI{65}{\micro\liter} from each well; keep tips to left or right depending on the column to avoid bead pellet. The pellet will stick to the side of the well due to the action of the magnet.
+\\
+&& Add \SI{100}{\micro\liter} fresh 80\% ethanol to each well and incubate 30 seconds. Remove \SI{100}{\micro\liter} from each well
+\\
+&& Duplicate the last step. I.e., add \SI{100}{\micro\liter} fresh 80\% ethanol to each well, incubate 30 seconds, remove \SI{100}{\micro\liter} from each well.
+\\
+&& Aspirate from each well again to assure maximum ethanol removal. Ethanol can interfere with PCR.
+\\
+&& Allow plate to air dry for 7 minutes. This allows remaining ethanol to evaporate.
+\\
+&& Remove sample plate from magnet plate.
+\\
+&& Add \SI{30}{\micro\liter} TE (Tris ethylenediaminetetraacetic acid); pipette mix 10+ times. Incubate 2 minutes at room temperature.
+\\
+&& Place sample plate back on magnet for 5 minutes or until all wells are cleared.
+\\
+&& Transfer \SI{30}{\micro\liter} to a clean PCR plate.
+\\
+& Spotcheck PCR reactions went as planned using an Agilent Bioanalyzer 2100 or equivalent.
+\\
+& Optional: Normalize all samples to \SI{9}{\nano\gram\per\micro\liter}via the absorbance measurements made above. Perform normalizations using the Hamilton Nimbus. When high sequencing depth is assumed this step is not neccessary.
+\\
+& Check molar concentration of the pooled library via qPCR.
+\\
+&& Dilute an aliquot of the pool 1:1000.
+\\
+&& Optional: Include non-target control and standards (20 pm, 2 pm, 0.2 pm, 0.02 pm, 0.002 pm,0.0002 pm).
+\\
+&& Prepare the qPCR mix shown in Table~\ref{table_qpcr_reagents} and perform qPCR following conditions shown in Table~\ref{table_qpcr_recipe}.
+
+& If necessary, concentrate the library using the SpeedVac DNA 130 or equivalent.
+
+& Store complete library in the refrigerator until mailing to sequencing facility. Ensure caps are on wells securely to avoid evaporation. We rely on the Genomic Sequencing and Analysis Facility at the University of Texas for sequencing. Ensure a PhiX spike in is added to the library by the sequencing facility. Typically we use a 10\% spike in, however it may be possible to reduce this concentration given sufficient library complexity.
+
+\end{easylist}
+
+\vspace{5mm}
+\begin{minipage}[c]{\linewidth}
+\captionof{table}{Ingredients for FlowCell Master Mix (Mix \# 2). Include 10--15\% extra of reagents to account for wastage due to adhesion.}
+\centering
+\begin{tabular}{ |c|c| }
+\hline
+\SI{}{\micro\liter}/rxn & Reagent\\
+\hline
+ 3 & 5X KAPA HiFi HotStart PCR Buffer\\ 
+ 0.45 & 10M dNTPs \\ 
+ 0.3 & Kapa HiFi HotStart DNA Polymerase\\
+ 0.5 & \SI{10}{\micro M} of each of the forward and reverse flowcell primers\\
+ 0.75 & HPLC grade $\mathrm{H_2 O}$\\
+ 7 & Total volume\\
+ \hline
+\end{tabular}
+\label{table_mm_2}
+\end{minipage}
+
+\vspace{5mm}
+\begin{minipage}[c]{\linewidth}
+\captionof{table}{PCR conditions \#2. These conditions are for addition of Illumina flow cell adaptors.}
+\centering
+\begin{tabular}{ |c|c|c| }
+\hline
+Temp. & Cycles & Time\\
+\hline
+95\si{\degree} & 1X & 3:00 min \\
+98\si{\degree} & 19X & 30 sec \\
+55\si{\degree} & 19X & 30 sec \\
+72\si{\degree} & 19X & 30 sec \\
+72\si{\degree} & 1X & 5:00 min \\
+4\si{\degree} & 1X & hold \\
+ \hline
+\end{tabular}
+\label{table_pcr_flow}
+\end{minipage}
+
+\vspace{5mm}
+\begin{minipage}[c]{\linewidth}
+\captionof{table}{Ingredients for qPCR mix to test molarity of finished library.}
+\centering
+\begin{tabular}{ |c|c| }
+\hline
+\SI{}{\micro\liter}/rxn & Reagent\\
+\hline
+ 10 & KAPA SYBR FAST qPCR MM (2x)\\ 
+ 2 & Primer premix (10x) \\ 
+ 4 & Ultra pure water\\
+ 16 & Total volume\\
+ \hline
+\end{tabular}
+\label{table_qpcr_reagents}
+\end{minipage}
+
+\vspace{5mm}
+\begin{minipage}[c]{\linewidth}
+\captionof{table}{qPCR conditions for testing molarity of finished library.}
+\centering
+\begin{tabular}{ |c|c|c| }
+\hline
+Temp. & Cycles & Time\\
+\hline
+94\si{\degree} & 1X & 1 sec \\
+95\si{\degree} & 1X & 5 min \\
+95\si{\degree} & 32X & 30 sec \\
+60\si{\degree} & 32X & 1 min \\
+ \hline
+\end{tabular}
+\label{table_qpcr_recipe}
+\end{minipage}
+\printbibliography
+\end{document}
