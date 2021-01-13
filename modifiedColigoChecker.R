@@ -6,7 +6,7 @@ dim(dat)
 
 key <- read.csv("./NovaSeq2_DemuxJH.csv", stringsAsFactors = F) #demultiplexing key
 
-dim(key) #some stuff missing. No coligos?
+dim(key) 
 
 names(dat) <- gsub("X(.*)","\\1",names(dat))
 
