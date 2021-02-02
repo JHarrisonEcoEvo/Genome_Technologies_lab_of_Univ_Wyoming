@@ -10,11 +10,7 @@ Repository contents:
 
 ITSmergedstats.csv - see previous, but for ITS.
 
-NovaSeq2_DemuxJH.csv - sample to well key for Novaseq run
-
-Oligos_1step... - Excel file showing oligo sequences. 
-
-ProportionFig.R - script to make panels d and e in Fig. 2
+coligoCheck_iseq10.R - code to analyze coligo sequencing experiment. Used to make technical variation in coligos figure.
 
 coligoFigure-1.afdesign - Affinity Designer file for the figure.
 
@@ -24,7 +20,12 @@ coligoTable_novaseq2 - coligo read count table from complex Novaseq run involvin
 
 coligoTable_testRun_iseq10 - table linking coligo sequences to replicates. ABC refer to the three replicates for each coligo. These data only include coligo, ISD (referred to as SG in the table), and mock community (MC).
 
-
 modifiedColigoChecker.R - script to determine prevalence of coligos among samples
 
+NovaSeq2_DemuxJH.csv - sample to well key for Novaseq run
+
+Oligos_1step... - Excel file showing oligo sequences. 
+
 parse_count.pl - demultiplexing script
+
+ProportionFig.R - script to make panels d and e in Fig. 2
