@@ -9,8 +9,16 @@ add.alpha <- function(col, alpha=1){
           rgb(x[1], x[2], x[3], alpha=alpha))  
 }
 
-dat <- read.table("./coligoTable", stringsAsFactors = F, header = T)
+dat <- read.table("./coligoTable_novaseq2", stringsAsFactors = F, header = T)
 head(dat)
+
+d <- dat[,grep("16S", names(dat))]
+rowSums(d)
+
+tabout <- data.frame(matrix(nrow = 96, ncol = 2))
+for(i in 1:96){
+  tabout[i,] <- print(table(d[i,]==0))
+}
 
 its <- read.csv("./ITSmergedstats.csv", stringsAsFactors = F, header = F)
 #reformat to faciltiate searching
