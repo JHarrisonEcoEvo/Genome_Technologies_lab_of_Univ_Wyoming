@@ -69,4 +69,20 @@ pdf(width = 6, height = 6,
 plot(p)
 dev.off()
 
+#make a scatter plot of how many people use controls for each of the years from
+#2015-2020
 
+dat[sample(grep("2019", dat[,1]), 10),]
+
+dat[grep("2020", dat[,1]),]
+
+years <- seq(2015, 2020, by = 1)
+prop_Pos_yes <- c(20,50,20,20,40,10)
+prop_Neg_yes <- c(20,50,40,30,30,30)
+
+  
+plot(ylim = c(1,100),
+     xlim = c(1,6),
+      NULL)
+points(y = prop_Neg_yes, x = c(1:6), pch = 16)
+points(y = prop_Pos_yes, x = c(1:6), pch = 16, col = "red")
