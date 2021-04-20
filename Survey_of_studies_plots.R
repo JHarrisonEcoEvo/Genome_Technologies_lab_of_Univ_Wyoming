@@ -80,9 +80,23 @@ years <- seq(2015, 2020, by = 1)
 prop_Pos_yes <- c(20,50,20,20,40,10)
 prop_Neg_yes <- c(20,50,40,30,30,30)
 
-  
+pdf(file = "./visuals/controlPlot.pdf", width = 6, height = 6)
 plot(ylim = c(1,100),
      xlim = c(1,6),
+     frame.plot = F,
+     xlab = "",
+     yaxt = "n",
+     xaxt = "n",
+     ylab = "",
       NULL)
-points(y = prop_Neg_yes, x = c(1:6), pch = 16)
-points(y = prop_Pos_yes, x = c(1:6), pch = 16, col = "red")
+axis(side = 2, lab = seq(0, 100, 20), at = seq(0, 100, 20), las = 2)
+points(y = prop_Neg_yes, x = c(1:6), pch = 16, cex = 2)
+points(y = prop_Pos_yes, x = c(1:6), pch = 16, col = "red", cex = 2)
+axis(side = 1, lab = seq(2015, 2020, 1), 
+     at =seq(1, 6, 1), las = 2, las = 1)
+
+legend("topleft", legend = c("Negative control", 
+                  "Positive control"),
+       col = c("orange","blue"), pch = 19,
+       bty = "n")
+dev.off()
